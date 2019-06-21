@@ -2,11 +2,11 @@
 
 import csv
 from os import path
-import time
 
 # output format
 # wz, ax, wz, vx, Il, IR
 
+## uses hard coded file names, files are to be placed within the csv folder in the package directory
 basepath = path.dirname(__file__)
 imuFile = path.abspath(path.join(basepath, "..", "csv/imu.csv"))
 velFile = path.abspath(path.join(basepath, "..", "csv/vel.csv"))
