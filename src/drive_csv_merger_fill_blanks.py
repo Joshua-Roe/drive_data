@@ -13,7 +13,7 @@ velFile = path.abspath(path.join(basepath, "..", "csv/vel.csv"))
 statusFile = path.abspath(path.join(basepath, "..", "csv/status.csv"))
 outFile = path.abspath(path.join(basepath, "..", "csv/output_fill_blanks.csv"))
 
-#IMU want colum 0, 16, 19
+#IMU want colum 0, 24, 35 as of second line (due to multivalue cells)
 with open(imuFile, 'r') as csvfile:
     reader = csv.reader(csvfile, delimiter=',', quotechar='|')
     header = next(reader)
@@ -69,8 +69,8 @@ with open(statusFile, 'r') as csvfile:
     curRow = 0
     csvfile.seek(0)
     for row in reader:
-        print(row[0] + "+++++++++++++++")
-        print(row[11])
+        #print(row[0])
+        #print(row[11])
         status[curRow][0] = row[0]
         status[curRow][1] = row[10]
         status[curRow][2] = row[11]
@@ -82,11 +82,12 @@ with open(outFile, 'w') as csvfilefinal:
     iVel = 2
     iStatus = 2
 
+    print('----------')
+    print('Converting')
     #wz, ax, vx, wz, Il, IR
     ##exit()
     writer.writerow(['ROS Timestamp', 'IMU Z rotation', 'IMU X acceleration', 'cmd_vel X translation', 'cmd_vel Z rotation', 'left motor current', 'right motor current'])
     while iImu < nImu and iVel < nVel and iStatus < nStatus:
-        print(iStatus, nStatus)
         if iVel == nVel and iStatus == nStatus:
             writer.writerow([imu[iImu][0], imu[iImu][1], imu[iImu][2], vel[iVel-1][1], vel[iVel-1][2], status[iStatus-1][1], status[iStatus-1][2]])
             ##print('imu')
@@ -97,7 +98,7 @@ with open(outFile, 'w') as csvfilefinal:
             iVel = iVel + 1
         elif iImu == nImu and iVel == nVel:
             writer.writerow([status[iStatus][0], imu[iImu-1][1], imu[iImu-1][2], vel[iVel-1][1], vel[iVel-1][2], status[iStatus][1], status[iStatus][2]])
-            ##print('status+++++++++++++++++++++++')
+            ##print('status')
             iStatus = iStatus + 1
         elif float(imu[iImu][0]) <= float(vel[iVel][0]) and float(imu[iImu][0]) <= float(status[iStatus][0]):
             writer.writerow([imu[iImu][0], imu[iImu][1], imu[iImu][2], vel[iVel-1][1], vel[iVel-1][2], status[iStatus-1][1], status[iStatus-1][2]])
@@ -109,8 +110,9 @@ with open(outFile, 'w') as csvfilefinal:
             iVel = iVel + 1
         elif float(status[iStatus][0]) <= float(imu[iImu][0]) or float(status[iStatus][0]) <= float(vel[iVel][0]):
             writer.writerow([status[iStatus][0], imu[iImu-1][1], imu[iImu-1][2], vel[iVel-1][1], vel[iVel-1][2], status[iStatus][1], status[iStatus][2]])
-            ##print('statussort++++++++++++++++++++++')
+            ##print('statussort')
             iStatus = iStatus + 1
         else:
             print("broken")
             exit()
+print('Conversion Complete')
